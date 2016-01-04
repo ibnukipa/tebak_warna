@@ -66,6 +66,7 @@ class BoxesGame(ConnectionListener):
 		self.turn = True
 		self.me=0
 		self.otherplayer=0
+		self.didiwin=False
 
 		#konek ke server
 		host, port="localhost", 8000
@@ -76,6 +77,11 @@ class BoxesGame(ConnectionListener):
 		self.gameid = None
 		self.num = None
 		self.running = False
+
+		#Membuat layar menunggu untuk client yang pertama konek ke server
+		if not self.running:
+			thread = Thread(target = self.tunggu())
+			thread.start()
 		
 		#untuk mengecek sudahkah ada musuh yang masuk
 		while not self.running:
@@ -91,7 +97,21 @@ class BoxesGame(ConnectionListener):
 		else:
 			self.turn=False
 		
+	def tunggu(self):
+		self.screen.fill(0)
+		myfont = pygame.font.SysFont(None, 40)
+		
+		label = myfont.render("Menunggu musuh..", 1, (255,255,255))
+
+		self.screen.blit(label, (10, 225))
+	
+		pygame.display.flip()
+
 	def update(self):
+		#pengecekan jumlah poin untuk kemenangan
+		if self.me+self.otherplayer==18:
+			self.didiwin=True if self.me>self.otherplayer else False
+			return 1
 
 		connection.Pump()
 		self.Pump()
@@ -191,7 +211,8 @@ class BoxesGame(ConnectionListener):
 		self.empat=pygame.image.load("warna/4.png").convert_alpha()
 		self.lima=pygame.image.load("warna/5.png").convert_alpha()
 		self.enam=pygame.image.load("warna/6.png").convert_alpha()
-
+		self.winningscreen=pygame.image.load("youwin.png").convert_alpha()
+		self.gameover=pygame.image.load("gameover.png").convert_alpha()
 		self.score_panel=pygame.image.load("score_panel.png").convert_alpha()
 		self.redindicator=pygame.image.load("redindicator.png").convert_alpha()
 		self.greenindicator=pygame.image.load("greenindicator.png").convert_alpha()
@@ -240,7 +261,17 @@ class BoxesGame(ConnectionListener):
 		self.screen.blit(scoreme, (10, 415))
 		self.screen.blit(scoretextother, (389-text_width_te-10, 400))
 		self.screen.blit(scoreother, (389-text_width-10, 415))
-#end
+
+	def finished(self):
+		self.screen.blit(self.gameover if not self.didiwin else self.winningscreen, (0,0))
+		while 1:
+			for event in pygame.event.get():
+				if event.type == pygame.QUIT:
+					exit()
+			pygame.display.flip()
+
 bg=BoxesGame()
 while 1:
-	bg.update()
+	if bg.update() == 1:
+		break
+bg.finished()
