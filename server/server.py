@@ -2,8 +2,21 @@ import PodSixNet.Channel
 import PodSixNet.Server
 from time import sleep
 class ClientChannel(PodSixNet.Channel.Channel):
-    def Network(self, data):
-        print data
+	def Network(self, data):
+		print data
+	def Network_place(self, data):
+		x = data["x"]
+		y = data["y"]
+		x2 = data["x2"]
+		y2 = data["y2"]
+		num = data["num"]
+		self.gameid = data["gameid"]
+
+		#cek jika client berhasil menyamakan kotak
+		if x >=0:
+			self._server.placeKotak(x, y, x2, y2, data, self.gameid, num)
+		else:
+			self._server.gantiTurn(self.gameid, num)
 
 class BoxesServer(PodSixNet.Server.Server):
  	def __init__(self, *args, **kwargs):
