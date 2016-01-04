@@ -52,7 +52,7 @@ class BoxesServer(PodSixNet.Server.Server):
 		
 		if len(game)==1:
 			game[0].gantiTurn(num)
-			
+
 class Game:
 	def __init__(self, player0, currentIndex):
 		self.turn = 0
@@ -60,6 +60,26 @@ class Game:
 		self.player0=player0
 		self.player1=None
 		self.gameid=currentIndex
+	def placeKotak(self, x, y, x2, y2, data, num):
+		if num==self.turn:
+			
+			self.kotak[x][y] = True
+			self.kotak[x2][y2] = True
+			self.player0.Send(data)
+			self.player1.Send(data)
+			if self.turn == 0:
+				self.player1.Send({"action":"lose"})
+				self.player0.Send({"action":"win"})
+			else:
+				self.player0.Send({"action":"lose"})
+				self.player1.Send({"action":"win"})
+			
+	def gantiTurn(self, num):
+		if num==self.turn:
+			self.turn = 0 if self.turn else 1
+			self.player1.Send({"action":"yourturn", "torf":True if self.turn==1 else False})
+			self.player0.Send({"action":"yourturn", "torf":True if self.turn==0 else False})
+
 #membuat server
 host, port="localhost", 8000
 boxesServe=BoxesServer(localaddr=(host, int(port)))
