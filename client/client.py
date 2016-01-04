@@ -1,6 +1,9 @@
 import pygame
 from random  import *
 
+import time
+from threading import Thread
+
 class BoxesGame():
 	def __init__(self):
 		pass
@@ -19,6 +22,9 @@ class BoxesGame():
 		
 		#self.kotak adalah sebgai objek yang akan ditebak.
 		self.kotak = [[False for x in range(6)] for y in range(6)]
+		#self.hasil adalah array untuk menampung koordinat kotak yang berhasil disamakan oleh client(pemain)
+		self.hasil = []	
+
 		self.acak = [[x for x in range(6)] for y in range(6)]
 		shuffle(self.acak)
 		map(shuffle, self.acak)
@@ -27,6 +33,9 @@ class BoxesGame():
 		self.xpos = -1
 		self.ypos = -1
 
+		#inialisasi untuk koordinat kotak kedua yang diklik client(pemain) 
+		self.xpos2 = -1
+		self.ypos2 = -1
 		#inialisasi dari objek2 yang akan dipakai
 		self.initGraphics()
 		
@@ -53,17 +62,59 @@ class BoxesGame():
 		
 		xpos = int(mouse[0]/64.0)
 		ypos = int(mouse[1]/64.0)
+
+		board=self.kotak
+		isoutofbounds=False
+		try: 
+			if not board[ypos][xpos]:
+				pass
+		except:
+			isoutofbounds=True
+			pass
 		
-		if pygame.mouse.get_pressed()[0]:
+		if pygame.mouse.get_pressed()[0] and not isoutofbounds:
 			self.kotak[xpos][ypos]=True
-			
+			#cek untuk klik kotak pertama
 			if self.xpos <0 and self.ypos <0:
 				self.xpos = xpos
 				self.ypos = ypos
-		
+
+			#cek untuk klik kotak kedua
+			if self.xpos != xpos or self.ypos != ypos:
+				if self.xpos2 < 0 and self.ypos2 < 0:
+					self.xpos2 = xpos
+					self.ypos2 = ypos
+
+		#untuk cek kalo kotak yang udah diklik 2
+		if self.xpos >=0 and self.xpos2 >= 0:
+			self.kotak[self.xpos][self.ypos]=True
+			self.kotak[self.xpos2][self.ypos2]=True
+			self.drawMap()
+			pygame.display.flip()
+			time.sleep(0.3)
+			thread = Thread(target = self.cek())
+			thread.start()
+
 		#Update screen
 		pygame.display.flip()
-	
+
+	def cek(self):
+		if not self.acak[self.xpos][self.ypos] == self.acak[self.xpos2][self.ypos2] :
+			self.kotak[self.xpos][self.ypos]=False
+			self.kotak[self.xpos2][self.ypos2]=False
+			self.drawMap()
+			self.reset()
+		else:
+			self.hasil.append([self.xpos,self.ypos])
+			self.hasil.append([self.xpos2,self.ypos2])
+			self.reset()
+
+	def reset(self):
+		self.xpos =-1
+		self.ypos = -1
+		self.xpos2 = -1
+		self.ypos2 = -1
+
 	def initGraphics(self):
 		self.normallinev=pygame.image.load("normalline.png").convert_alpha()
 		self.normallineh=pygame.transform.rotate(pygame.image.load("normalline.png"), -90).convert_alpha()
