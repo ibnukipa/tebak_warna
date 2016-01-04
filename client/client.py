@@ -1,6 +1,5 @@
 import pygame
 from random  import *
-
 import time
 from threading import Thread
 
@@ -38,6 +37,11 @@ class BoxesGame():
 		self.ypos2 = -1
 		#inialisasi dari objek2 yang akan dipakai
 		self.initGraphics()
+
+		#inialisasi untuk bermain multiplier
+		self.turn = True
+		self.me=0
+		self.otherplayer=0
 		
 	def update(self):
 		
@@ -52,6 +56,9 @@ class BoxesGame():
 
 		#membuat kotak-kotak yang akan menjadi objek yang ditebak
 		self.drawMap()
+
+		#membuat bar status pada client
+		self.drawHUD()
 		
 		#Untuk mengecek event quit window
 		for event in pygame.event.get():
@@ -72,7 +79,8 @@ class BoxesGame():
 			isoutofbounds=True
 			pass
 		
-		if pygame.mouse.get_pressed()[0] and not isoutofbounds:
+		if pygame.mouse.get_pressed()[0] and ([xpos, ypos] not in self.hasil) and not isoutofbounds:
+                        
 			self.kotak[xpos][ypos]=True
 			#cek untuk klik kotak pertama
 			if self.xpos <0 and self.ypos <0:
@@ -116,6 +124,11 @@ class BoxesGame():
 		self.ypos2 = -1
 
 	def initGraphics(self):
+		
+		self.myfont40 = pygame.font.SysFont(None, 40)
+		self.myfont85 = pygame.font.SysFont(None, 85)
+		self.myfont20 = pygame.font.SysFont(None, 20)
+		
 		self.normallinev=pygame.image.load("normalline.png").convert_alpha()
 		self.normallineh=pygame.transform.rotate(pygame.image.load("normalline.png"), -90).convert_alpha()
 		self.separators=pygame.image.load("separators.png").convert_alpha()
@@ -125,7 +138,11 @@ class BoxesGame():
 		self.empat=pygame.image.load("warna/4.png").convert_alpha()
 		self.lima=pygame.image.load("warna/5.png").convert_alpha()
 		self.enam=pygame.image.load("warna/6.png").convert_alpha()
-	
+
+		self.score_panel=pygame.image.load("score_panel.png").convert_alpha()
+		self.redindicator=pygame.image.load("redindicator.png").convert_alpha()
+		self.greenindicator=pygame.image.load("greenindicator.png").convert_alpha()
+
 	def drawBoard(self):
 		for x in range(6):
 			for y in range(7):
@@ -155,7 +172,22 @@ class BoxesGame():
 						self.screen.blit(self.lima, (x*64+5, y*64+5))
 					if self.acak[x][y] == 5:
 						self.screen.blit(self.enam, (x*64+5, y*64+5))
+	def drawHUD(self):
+		self.screen.blit(self.score_panel, [0, 389])
+		self.screen.blit(self.greenindicator if self.turn else self.redindicator, (155, 400))
+
+		scoreme = self.myfont85.render(str(self.me), 1, (255,255,255))
+		scoreother = self.myfont85.render(str(self.otherplayer), 1, (255,255,255))
+		scoretextme = self.myfont20.render("Poin Anda", 1, (255,255,255))
+		scoretextother = self.myfont20.render("Poin Musuh", 1, (255,255,255))
+		text_width_te, text_height_te = self.myfont20.size("Poin Musuh")
+		text_width, text_height = self.myfont85.size(str(self.otherplayer))
 		
+		self.screen.blit(scoretextme, (10, 400))
+		self.screen.blit(scoreme, (10, 415))
+		self.screen.blit(scoretextother, (389-text_width_te-10, 400))
+		self.screen.blit(scoreother, (389-text_width-10, 415))
+#end
 bg=BoxesGame()
 while 1:
 	bg.update()
