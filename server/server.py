@@ -28,7 +28,13 @@ class BoxesServer(PodSixNet.Server.Server):
 			self.queue.player1.Send({"action": "startgame","player":1, "gameid": self.queue.gameid})
 			self.games.append(self.queue)
 			self.queue=None
-
+class Game:
+	def __init__(self, player0, currentIndex):
+		self.turn = 0
+		self.kotak=[[False for x in range(6)] for y in range(6)]
+		self.player0=player0
+		self.player1=None
+		self.gameid=currentIndex
 #membuat server
 host, port="localhost", 8000
 boxesServe=BoxesServer(localaddr=(host, int(port)))
