@@ -1,6 +1,8 @@
 import PodSixNet.Channel
 import PodSixNet.Server
 from time import sleep
+from random  import *
+
 class ClientChannel(PodSixNet.Channel.Channel):
 	def Network(self, data):
 		print data
@@ -17,6 +19,8 @@ class ClientChannel(PodSixNet.Channel.Channel):
 			self._server.placeKotak(x, y, x2, y2, data, self.gameid, num)
 		else:
 			self._server.gantiTurn(self.gameid, num)
+	def Close(self):
+		self._server.close(self.gameid)
 
 class BoxesServer(PodSixNet.Server.Server):
  	def __init__(self, *args, **kwargs):
@@ -37,8 +41,12 @@ class BoxesServer(PodSixNet.Server.Server):
 			channel.gameid=self.currentIndex
 			self.queue.player1=channel
 
-			self.queue.player0.Send({"action": "startgame","player":0, "gameid": self.queue.gameid})
-			self.queue.player1.Send({"action": "startgame","player":1, "gameid": self.queue.gameid})
+			self.acak = [[x for x in range(6)] for y in range(6)]
+			shuffle(self.acak)
+			map(shuffle, self.acak)
+
+			self.queue.player0.Send({"action": "startgame","player":0, "gameid": self.queue.gameid, "acak": self.acak})
+			self.queue.player1.Send({"action": "startgame","player":1, "gameid": self.queue.gameid, "acak": self.acak})
 			self.games.append(self.queue)
 			self.queue=None
 

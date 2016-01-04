@@ -1,8 +1,6 @@
 import pygame
-from random  import *
 import time
 from threading import Thread
-
 from PodSixNet.Connection import ConnectionListener, connection
 from time import sleep
 
@@ -12,6 +10,8 @@ class BoxesGame(ConnectionListener):
 		self.running=True
 		self.num=data["player"]
 		self.gameid=data["gameid"]
+		self.acak = data["acak"]
+
 	def Network_place(self, data):
 		x = data["x"]
 		y = data["y"]
@@ -22,7 +22,16 @@ class BoxesGame(ConnectionListener):
 		
 	def Network_yourturn(self, data):
 		self.turn = data["torf"]
-				
+
+	def Network_win(self, data):
+		self.me+=1
+		
+	def Network_lose(self, data):
+		self.otherplayer+=1
+
+	def Network_close(self, data):
+		exit()
+
 	def __init__(self):
 		pass
 		#Membuat kotak window dengan pygame
@@ -42,10 +51,6 @@ class BoxesGame(ConnectionListener):
 		self.kotak = [[False for x in range(6)] for y in range(6)]
 		#self.hasil adalah array untuk menampung koordinat kotak yang berhasil disamakan oleh client(pemain)
 		self.hasil = []	
-
-		self.acak = [[x for x in range(6)] for y in range(6)]
-		shuffle(self.acak)
-		map(shuffle, self.acak)
 
 		#inialisasi untuk koordinat kotak pertama yang diklik client(pemain) 
 		self.xpos = -1
@@ -125,7 +130,7 @@ class BoxesGame(ConnectionListener):
 			isoutofbounds=True
 			pass
 		
-		if pygame.mouse.get_pressed()[0] and ([xpos, ypos] not in self.hasil) and not isoutofbounds:
+		if pygame.mouse.get_pressed()[0] and ([xpos, ypos] not in self.hasil) and not isoutofbounds and self.turn==True:
                         
 			self.kotak[xpos][ypos]=True
 			#cek untuk klik kotak pertama
