@@ -3,7 +3,11 @@ from random  import *
 import time
 from threading import Thread
 
-class BoxesGame():
+from PodSixNet.Connection import ConnectionListener, connection
+from time import sleep
+
+
+class BoxesGame(ConnectionListener):
 	def __init__(self):
 		pass
 		#Membuat kotak window dengan pygame
@@ -42,9 +46,17 @@ class BoxesGame():
 		self.turn = True
 		self.me=0
 		self.otherplayer=0
+
+		#konek ke server
+		host, port="localhost", 8000
+		print "Connect to: ", host, ":", port
+		self.Connect((host, int(port)))
 		
 	def update(self):
-		
+
+		connection.Pump()
+		self.Pump()
+			
 		#Membuat game menjadi 60 fps
 		self.clock.tick(60)
 		
@@ -124,7 +136,7 @@ class BoxesGame():
 		self.ypos2 = -1
 
 	def initGraphics(self):
-		
+
 		self.myfont40 = pygame.font.SysFont(None, 40)
 		self.myfont85 = pygame.font.SysFont(None, 85)
 		self.myfont20 = pygame.font.SysFont(None, 20)
