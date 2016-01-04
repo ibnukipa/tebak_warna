@@ -41,6 +41,18 @@ class BoxesServer(PodSixNet.Server.Server):
 			self.queue.player1.Send({"action": "startgame","player":1, "gameid": self.queue.gameid})
 			self.games.append(self.queue)
 			self.queue=None
+
+	def placeKotak(self, x, y, x2, y2, data, gameid, num):
+		game = [a for a in self.games if a.gameid==gameid]
+		if len(game)==1:
+			game[0].placeKotak(x, y, x2, y2, data, num)
+
+	def gantiTurn(self, gameid, num):
+		game = [a for a in self.games if a.gameid==gameid]
+		
+		if len(game)==1:
+			game[0].gantiTurn(num)
+			
 class Game:
 	def __init__(self, player0, currentIndex):
 		self.turn = 0
