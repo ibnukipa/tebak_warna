@@ -19,6 +19,8 @@ class BoxesGame(ConnectionListener):
 		y2 = data["y2"]
 		self.kotak[x][y] = True
 		self.kotak[x2][y2] = True
+		self.hasil.append([x,y])
+		self.hasil.append([x2,y2])
 		
 	def Network_yourturn(self, data):
 		self.turn = data["torf"]
