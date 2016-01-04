@@ -12,7 +12,17 @@ class BoxesGame(ConnectionListener):
 		self.running=True
 		self.num=data["player"]
 		self.gameid=data["gameid"]
+	def Network_place(self, data):
+		x = data["x"]
+		y = data["y"]
+		x2 = data["x2"]
+		y2 = data["y2"]
+		self.kotak[x][y] = True
+		self.kotak[x2][y2] = True
 		
+	def Network_yourturn(self, data):
+		self.turn = data["torf"]
+				
 	def __init__(self):
 		pass
 		#Membuat kotak window dengan pygame
