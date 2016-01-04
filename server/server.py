@@ -61,6 +61,14 @@ class BoxesServer(PodSixNet.Server.Server):
 		if len(game)==1:
 			game[0].gantiTurn(num)
 
+	def close(self, gameid):
+		try:
+			game = [a for a in self.games if a.gameid==gameid][0]
+			game.player0.Send({"action":"close"})
+			game.player1.Send({"action":"close"})
+		except:
+			pass
+
 class Game:
 	def __init__(self, player0, currentIndex):
 		self.turn = 0
