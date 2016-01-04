@@ -8,6 +8,11 @@ from time import sleep
 
 
 class BoxesGame(ConnectionListener):
+	def Network_startgame(self, data):
+		self.running=True
+		self.num=data["player"]
+		self.gameid=data["gameid"]
+		
 	def __init__(self):
 		pass
 		#Membuat kotak window dengan pygame
@@ -51,6 +56,25 @@ class BoxesGame(ConnectionListener):
 		host, port="localhost", 8000
 		print "Connect to: ", host, ":", port
 		self.Connect((host, int(port)))
+
+		#inialisasi untuk status permainan (koordinasi dengan server)
+		self.gameid = None
+		self.num = None
+		self.running = False
+		
+		#untuk mengecek sudahkah ada musuh yang masuk
+		while not self.running:
+			for event in pygame.event.get():
+				if event.type == pygame.QUIT:
+					exit()
+			connection.Pump()
+			self.Pump()
+			sleep(0.01)
+
+		if self.num==0:
+			self.turn=True
+		else:
+			self.turn=False
 		
 	def update(self):
 
@@ -120,11 +144,13 @@ class BoxesGame(ConnectionListener):
 
 	def cek(self):
 		if not self.acak[self.xpos][self.ypos] == self.acak[self.xpos2][self.ypos2] :
+			self.Send({"action": "place", "x":-1, "y":-1, "x2":-1, "y2":-1, "gameid": self.gameid, "num": self.num})
 			self.kotak[self.xpos][self.ypos]=False
 			self.kotak[self.xpos2][self.ypos2]=False
 			self.drawMap()
 			self.reset()
 		else:
+			self.Send({"action": "place", "x":self.xpos, "y":self.ypos, "x2":self.xpos2, "y2":self.ypos2, "gameid": self.gameid, "num": self.num})
 			self.hasil.append([self.xpos,self.ypos])
 			self.hasil.append([self.xpos2,self.ypos2])
 			self.reset()
